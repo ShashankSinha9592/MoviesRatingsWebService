@@ -17,7 +17,7 @@ public class RatingsController {
 
     @Autowired
     RatingsService ratingsService;
-    @PostMapping
+    @PostMapping("/save-ratings-from-csv-file")
     public ResponseEntity<List<RatingsDTO>> saveRatingsFormCsvFile(){
 
         List<RatingsDTO> ratingsDTOList = ratingsService.addRatingsFromCsvFile();

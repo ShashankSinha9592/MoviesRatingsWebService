@@ -37,7 +37,7 @@ public class MoviesController {
         return new ResponseEntity<>(added, HttpStatus.CREATED);
 
     }
-    @PostMapping
+    @PostMapping("/save-movies-from-csv-file")
     public ResponseEntity<List<MoviesDTO>> saveMoviesFormCsvFile(){
 
         List<MoviesDTO> moviesDTOList = moviesService.addCsvFileMovies();
