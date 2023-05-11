@@ -14,6 +14,9 @@ import lombok.*;
 @ToString
 public class MoviesDTO {
 
+    @NotNull(message = "tConst is null")
+    @NotEmpty(message = "tConst is empty")
+    @NotBlank(message = "tConst is blank")
     private String tConst;
 
     @NotNull(message = "Title is null")
@@ -21,15 +24,19 @@ public class MoviesDTO {
     @NotBlank(message = "Title is blank")
     private String titleType;
 
+    @NotNull(message = "primaryTitle is null")
+    @NotEmpty(message = "primaryTitle is empty")
+    @NotBlank(message = "primaryTitle is blank")
     private String primaryTitle;
 
     @Min(value = 0, message = "Runtime minutes cannot be negative")
+    @NotNull(message = "runtimeMinutes is null")
     private Integer runtimeMinutes;
 
+    @NotNull(message = "genres is null")
+    @NotEmpty(message = "genres is empty")
+    @NotBlank(message = "genres is blank")
     private String genres;
 
-    private Float averageRating;
-
-    private Integer numVotes;
 
 }

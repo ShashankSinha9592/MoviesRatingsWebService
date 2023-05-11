@@ -1,10 +1,12 @@
 package com.movies.MoviesRatingsWebService.Service;
 
-import com.movies.MoviesRatingsWebService.DTO.MoviesDTO;
+import com.movies.MoviesRatingsWebService.DTO.MoviesRatingsDTO;
 import com.movies.MoviesRatingsWebService.DTO.RatingsDTO;
 import com.movies.MoviesRatingsWebService.Exceptions.MoviesException;
-import com.movies.MoviesRatingsWebService.Model.Direction;
+import com.movies.MoviesRatingsWebService.Exceptions.RatingsException;
+import com.movies.MoviesRatingsWebService.Model.Movies;
 import com.movies.MoviesRatingsWebService.Model.Ratings;
+import com.movies.MoviesRatingsWebService.Repository.MoviesRepository;
 import com.movies.MoviesRatingsWebService.Repository.RatingsRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,16 @@ public class RatingsServiceImplementation implements RatingsService{
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    MoviesRepository moviesRepository;
+
     @Override
     public List<RatingsDTO> addRatingsFromCsvFile() {
+
+        List<Ratings> ratingsList = ratingsRepository.findAll();
+
+        if(!ratingsList.isEmpty()) throw new RatingsException("Data already added from CSV file, cannot add duplicate items to the database");
+
         try(BufferedReader br = new BufferedReader((new FileReader("src/main/resources/ratings.csv")))){
 
             br.lines()
@@ -53,15 +63,28 @@ public class RatingsServiceImplementation implements RatingsService{
 
     @Override
     public String giveAvgRatingToMovie(String movieId, RatingsDTO ratingsDTO) {
-        return null;
+
+        Movies movies = moviesRepository.findById(movieId).orElseThrow(()-> new MoviesException("Invalid movie Id : "+movieId));
+
+        Ratings ratings = DtoToRatings(ratingsDTO);
+
+        ratings.setTconst(movies.getTConst());
+        ratings.setMovie(movies);
+
+        movies.setRating(ratings);
+        moviesRepository.save(movies);
+
+        return "Success";
+
+
     }
 
     @Override
-    public List<MoviesDTO> getTopRatedMovieByRatingField(Float rating, Sort sort) {
+    public List<MoviesRatingsDTO> getTopRatedMovieByRatingField(Float rating, Sort sort) {
 
         System.out.println("rating called");
 
-        List<MoviesDTO> sortedTopRatedMoviesByRating = ratingsRepository.getTopRatedMovieInSortedOrderByField(rating, sort);
+        List<MoviesRatingsDTO> sortedTopRatedMoviesByRating = ratingsRepository.getTopRatedMovieInSortedOrderByField(rating, sort);
 
         if(sortedTopRatedMoviesByRating.isEmpty()) throw new MoviesException("No Movies found");
 
@@ -85,6 +108,10 @@ public class RatingsServiceImplementation implements RatingsService{
 
         return modelMapper.map(ratings, RatingsDTO.class);
 
+    }
+
+    private Ratings DtoToRatings(RatingsDTO ratingsDTO){
+        return modelMapper.map(ratingsDTO, Ratings.class);
     }
 
 }

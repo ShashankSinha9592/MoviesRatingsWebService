@@ -18,15 +18,19 @@ import lombok.Setter;
 public class Movies {
 
     @Id
+    @Column(unique = true, nullable = false)
     private String tConst;
 
+    @Column(nullable = false)
     private String titleType;
 
+    @Column(nullable = false)
     private String primaryTitle;
 
-    @Min(value = 0, message = "Runtime minutes cannot be negative")
+    @Column(nullable = false)
     private Integer runtimeMinutes;
 
+    @Column(nullable = false)
     private String genres;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "movie")

@@ -2,11 +2,13 @@ package com.movies.MoviesRatingsWebService.Service;
 
 import com.movies.MoviesRatingsWebService.DTO.GenreMovie;
 import com.movies.MoviesRatingsWebService.DTO.MoviesDTO;
+import com.movies.MoviesRatingsWebService.DTO.MoviesRatingsDTO;
 import com.movies.MoviesRatingsWebService.Exceptions.MoviesException;
 import com.movies.MoviesRatingsWebService.Model.Direction;
 import com.movies.MoviesRatingsWebService.Model.Field;
 import com.movies.MoviesRatingsWebService.Model.Movies;
 import com.movies.MoviesRatingsWebService.Repository.MoviesRepository;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -32,6 +34,9 @@ public class MoviesServiceImplementation implements MoviesService{
 
     @Override
     public List<MoviesDTO> addCsvFileMovies() {
+
+        List<Movies> moviesList = moviesRepository.findAll();
+        if(!moviesList.isEmpty()) throw new MoviesException("Data already added from CSV file, cannot add duplicate data to the database");
 
         try(BufferedReader br = new BufferedReader((new FileReader("src/main/resources/movies.csv")))){
 
@@ -59,9 +64,9 @@ public class MoviesServiceImplementation implements MoviesService{
     }
 
     @Override
-    public List<MoviesDTO> getLongestDurationMovies() {
+    public List<MoviesRatingsDTO> getLongestDurationMovies() {
 
-        List<MoviesDTO> top10LongestDurationMovies = moviesRepository.getTop10LongestDurationMovies();
+        List<MoviesRatingsDTO> top10LongestDurationMovies = moviesRepository.getTop10LongestDurationMovies();
 
         if(top10LongestDurationMovies.isEmpty()) throw new MoviesException("No movies found");
 
@@ -70,7 +75,7 @@ public class MoviesServiceImplementation implements MoviesService{
     }
 
     @Override
-    public String addNewMovie(MoviesDTO moviesDto) {
+    public String addNewMovie(@Valid MoviesDTO moviesDto) {
 
         Movies movies = dtoToMovie(moviesDto);
 
@@ -81,11 +86,11 @@ public class MoviesServiceImplementation implements MoviesService{
     }
 
     @Override
-    public List<MoviesDTO> getTopRatedMovieByMovieField(Field field, Float rating, Direction direction) {
+    public List<MoviesRatingsDTO> getTopRatedMovieByMovieField(Field field, Float rating, Direction direction) {
 
         Sort sort = direction.equals(Direction.ASC)? Sort.by(field.name()).ascending() : Sort.by(field.name()).descending();
 
-        List<MoviesDTO> sortedTopRatedMovies;
+        List<MoviesRatingsDTO> sortedTopRatedMovies;
 
         if(field.equals(Field.averageRating) || field.equals(Field.numVotes)) sortedTopRatedMovies = ratingsService.getTopRatedMovieByRatingField(rating, sort);
 
@@ -109,17 +114,13 @@ public class MoviesServiceImplementation implements MoviesService{
     }
 
     @Override
-    public String updateRunTimeMinutes() {
+    public Integer updateRunTimeMinutes() {
 
-        //Increment runtimeMinutes of all Movies using only SQL query (not in API code).
-        //Increment runtimeMinutes by :
-        //15 if genre = Documentary
-        //30 if genre = Animation
-        //45 for the rest
+        Integer numOfRowsUpdated = moviesRepository.updateRuntimeMinutes();
 
+        if(numOfRowsUpdated==0) throw new MoviesException("No Rows Updated");
 
-
-        return null;
+        return numOfRowsUpdated;
     }
 
     private List<MoviesDTO> movieList(){
