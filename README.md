@@ -34,7 +34,7 @@
 * change the password according to your database password
 * Open mysql and run this command : create database MoviesRatings;
 * Now run the application and paste this url in the browser : http://localhost:8081/swagger-ui/index.html#/
-* 
+
 ### Chech the image for the reference
 
 
