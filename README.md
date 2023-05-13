@@ -19,12 +19,15 @@
 * Get Movies details by the group of genres and sub-totalvotes
 * Update the rintime minutes of the movies
 
+### Project demonstration video : https://drive.google.com/file/d/1QMoXa0ZTBGJ5hjegMSgGAWUx2rBPU1rX/view?usp=share_link
+
 ### Url : http://localhost:8081/
 
 ### Api URIs 
 
 
 ![Screenshot (208)](https://github.com/ShashankSinha9592/MoviesRatingsWebService/assets/102857782/9361b36d-b5ee-4a79-baae-ac467c5870f3)
+
 
 
 ### Instructions to use 
