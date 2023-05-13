@@ -3,16 +3,13 @@ package com.movies.MoviesRatingsWebService.Service;
 import com.movies.MoviesRatingsWebService.DTO.GenreMovie;
 import com.movies.MoviesRatingsWebService.DTO.MoviesDTO;
 import com.movies.MoviesRatingsWebService.DTO.MoviesRatingsDTO;
-import com.movies.MoviesRatingsWebService.Exceptions.MoviesException;
 import com.movies.MoviesRatingsWebService.Model.Direction;
 import com.movies.MoviesRatingsWebService.Model.Field;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -20,13 +17,6 @@ class MoviesServiceImplementationTest {
 
     @Autowired
     MoviesService moviesService;
-
-    @Test
-    void testAddCsvFileMovies() {
-
-        assertThrows(MoviesException.class, ()-> moviesService.addCsvFileMovies());
-
-    }
 
     @Test
     void testGetLongestDurationMovies() {

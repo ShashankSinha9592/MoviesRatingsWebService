@@ -37,17 +37,22 @@ public class MoviesController {
         return new ResponseEntity<>(added, HttpStatus.CREATED);
 
     }
-    @PostMapping("/save-movies-from-csv-file")
-    public ResponseEntity<List<MoviesDTO>> saveMoviesFormCsvFile(){
-
-        List<MoviesDTO> moviesDTOList = moviesService.addCsvFileMovies();
-
-        return new ResponseEntity<>(moviesDTOList, HttpStatus.CREATED);
-
-    }
 
     @GetMapping("/top-rated-movies/{field}/{rating}/{direction}")
     public ResponseEntity<List<MoviesRatingsDTO>> getTopRatedMovies(@PathVariable Field field, @PathVariable Float rating, @PathVariable Direction direction){
+
+        List<MoviesRatingsDTO> topRatedMovies = moviesService.getTopRatedMovieByMovieField(field,rating,direction);
+
+        return new ResponseEntity<>(topRatedMovies, HttpStatus.OK);
+
+    }
+
+    @GetMapping("/top-rated-movies")
+    public ResponseEntity<List<MoviesRatingsDTO>> getTopRatedMovies(){
+
+        Field field = Field.averageRating;
+        Float rating = 6f;
+        Direction direction = Direction.ASC;
 
         List<MoviesRatingsDTO> topRatedMovies = moviesService.getTopRatedMovieByMovieField(field,rating,direction);
 

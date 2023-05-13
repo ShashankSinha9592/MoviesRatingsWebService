@@ -3,19 +3,17 @@ package com.movies.MoviesRatingsWebService.Service;
 import com.movies.MoviesRatingsWebService.DTO.MoviesRatingsDTO;
 import com.movies.MoviesRatingsWebService.DTO.RatingsDTO;
 import com.movies.MoviesRatingsWebService.Exceptions.MoviesException;
-import com.movies.MoviesRatingsWebService.Exceptions.RatingsException;
 import com.movies.MoviesRatingsWebService.Model.Movies;
 import com.movies.MoviesRatingsWebService.Model.Ratings;
 import com.movies.MoviesRatingsWebService.Repository.MoviesRepository;
 import com.movies.MoviesRatingsWebService.Repository.RatingsRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,42 +21,23 @@ import java.util.List;
 public class RatingsServiceImplementation implements RatingsService{
 
     @Autowired
-    RatingsRepository ratingsRepository;
+    private RatingsRepository ratingsRepository;
 
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Autowired
-    MoviesRepository moviesRepository;
+    private MoviesRepository moviesRepository;
 
-    @Override
-    public List<RatingsDTO> addRatingsFromCsvFile() {
+    @Autowired
+    @Qualifier(value = "readRatingsCsv")
+    ReadCsvFile readCsvFile;
 
-        List<Ratings> ratingsList = ratingsRepository.findAll();
+    @PostConstruct
+    private void addRatingsFromCsvFile() { readCsvFile.addCsvData();}
 
-        if(!ratingsList.isEmpty()) throw new RatingsException("Data already added from CSV file, cannot add duplicate items to the database");
-
-        try(BufferedReader br = new BufferedReader((new FileReader("src/main/resources/ratings.csv")))){
-
-            br.lines()
-                    .map((rating)-> rating.split(","))
-                    .filter((rating)-> !rating[0].equals("tconst"))
-                    .forEach((rating)->{
-
-                        Ratings ratings = new Ratings();
-                        ratings.setTconst(rating[0]);
-                        ratings.setAverageRating(Float.valueOf(rating[1]));
-                        ratings.setNumVotes(Integer.valueOf(rating[2]));
-
-                        ratingsRepository.save(ratings);
-                    });
-
-            return ratingsList();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+    @PreDestroy
+    private void removeData(){ ratingsRepository.deleteAll();}
 
 
     @Override
@@ -75,7 +54,6 @@ public class RatingsServiceImplementation implements RatingsService{
         moviesRepository.save(movies);
 
         return "Success";
-
 
     }
 
@@ -104,11 +82,7 @@ public class RatingsServiceImplementation implements RatingsService{
 
     }
 
-    private RatingsDTO ratingsToDTO(Ratings ratings){
-
-        return modelMapper.map(ratings, RatingsDTO.class);
-
-    }
+    private RatingsDTO ratingsToDTO(Ratings ratings){ return modelMapper.map(ratings, RatingsDTO.class);}
 
     private Ratings DtoToRatings(RatingsDTO ratingsDTO){
         return modelMapper.map(ratingsDTO, Ratings.class);

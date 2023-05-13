@@ -8,60 +8,39 @@ import com.movies.MoviesRatingsWebService.Model.Direction;
 import com.movies.MoviesRatingsWebService.Model.Field;
 import com.movies.MoviesRatingsWebService.Model.Movies;
 import com.movies.MoviesRatingsWebService.Repository.MoviesRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class MoviesServiceImplementation implements MoviesService{
+public class
+MoviesServiceImplementation implements MoviesService{
 
     @Autowired
-    MoviesRepository moviesRepository;
+    private MoviesRepository moviesRepository;
 
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Autowired
-    RatingsService ratingsService;
+    private RatingsService ratingsService;
 
-    @Override
-    public List<MoviesDTO> addCsvFileMovies() {
+    @Autowired
+    @Qualifier(value = "readMoviesCsv")
+    ReadCsvFile readCsvFile;
 
-        List<Movies> moviesList = moviesRepository.findAll();
-        if(!moviesList.isEmpty()) throw new MoviesException("Data already added from CSV file, cannot add duplicate data to the database");
+    @PostConstruct
+    private void addCsvFileMovies() { readCsvFile.addCsvData();}
 
-        try(BufferedReader br = new BufferedReader((new FileReader("src/main/resources/movies.csv")))){
-
-           br.lines()
-                   .map((movie)-> movie.split(","))
-                   .filter((movie)-> !movie[0].equals("tconst"))
-                   .forEach((movie)->{
-
-                       Movies movies = new Movies();
-                       movies.setTConst(movie[0]);
-                       movies.setTitleType(movie[1]);
-                       movies.setPrimaryTitle(movie[2]);
-                       movies.setRuntimeMinutes(Integer.valueOf(movie[3]));
-                       movies.setGenres(movie[4]);
-
-                       moviesRepository.save(movies);
-                    });
-
-           return movieList();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-    }
+    @PreDestroy
+    private void removeData(){ moviesRepository.deleteAll(); }
 
     @Override
     public List<MoviesRatingsDTO> getLongestDurationMovies() {
@@ -113,6 +92,7 @@ public class MoviesServiceImplementation implements MoviesService{
 
     }
 
+    @Transactional
     @Override
     public Integer updateRunTimeMinutes() {
 
@@ -123,23 +103,6 @@ public class MoviesServiceImplementation implements MoviesService{
         return numOfRowsUpdated;
     }
 
-    private List<MoviesDTO> movieList(){
-
-        List<MoviesDTO> moviesDTOList = new ArrayList<>();
-
-        List<Movies> savedMovies = moviesRepository.findAll();
-
-        savedMovies.forEach((movie)-> moviesDTOList.add(movieToDTO(movie)));
-
-        return moviesDTOList;
-
-    }
-
-    private MoviesDTO movieToDTO(Movies movies){
-
-        return modelMapper.map(movies, MoviesDTO.class);
-
-    }
 
     private Movies dtoToMovie(MoviesDTO moviesDTO){
         return modelMapper.map(moviesDTO, Movies.class);

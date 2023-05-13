@@ -37,6 +37,17 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorDetails> runtimeExceptionHandler(RuntimeException exc, WebRequest req){
+
+        ErrorDetails err = new ErrorDetails();
+        err.setTimeStamp(LocalDateTime.now());
+        err.setMessage(exc.getMessage());
+        err.setDescription(req.getDescription(false));
+
+        return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+
+    }
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<ErrorDetails> sqlExceptionHandler(SQLException exc, WebRequest req){
 

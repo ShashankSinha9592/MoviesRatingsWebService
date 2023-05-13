@@ -17,14 +17,6 @@ public class RatingsController {
 
     @Autowired
     RatingsService ratingsService;
-    @PostMapping("/save-ratings-from-csv-file")
-    public ResponseEntity<List<RatingsDTO>> saveRatingsFormCsvFile(){
-
-        List<RatingsDTO> ratingsDTOList = ratingsService.addRatingsFromCsvFile();
-
-        return new ResponseEntity<>(ratingsDTOList, HttpStatus.CREATED);
-
-    }
 
     @PostMapping("/give-rating-to-movie/{movieId}")
     public ResponseEntity<String> giveAverageRatingsTOMovie(@Valid @RequestBody RatingsDTO ratingsDTO, @PathVariable String movieId){

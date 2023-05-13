@@ -17,18 +17,30 @@ import java.util.List;
 @Repository
 public interface MoviesRepository extends JpaRepository<Movies, String> {
 
+    /**
+     *
+     * @return : Top 10 top Rated Movies
+     */
     @Query("SELECT new com.movies.MoviesRatingsWebService.DTO.MoviesRatingsDTO(m.tConst, m.primaryTitle, m.runtimeMinutes, m.genres, r.averageRating) from Movies m " +
             "INNER JOIN m.rating r " +
             "ORDER BY m.runtimeMinutes DESC LIMIT 10")
     public List<MoviesRatingsDTO> getTop10LongestDurationMovies();
 
 
+    /**
+     * @param rating : (Float) Average Rating
+     * @param sort : it takes sort class that holds 2 values : field on which data to sort and direction on which direction to sort either in ascending order or descending order
+     * @return : List of movies in sorted order according to field and direction greater than ratings
+     */
     @Query("SELECT new com.movies.MoviesRatingsWebService.DTO.MoviesRatingsDTO(m.tConst, m.primaryTitle, m.runtimeMinutes, m.genres, r.averageRating) FROM Movies m" +
             " INNER JOIN m.rating r" +
             " WHERE r.averageRating > :rating")
     public List<MoviesRatingsDTO> getTopRatedMovieInSortedOrderByField(@Param("rating") Float rating, Sort sort);
 
 
+    /**
+     * @return : A list of all movies genre-wise with Subtotals of their numVotes.
+     */
     @Query("SELECT new com.movies.MoviesRatingsWebService.DTO.GenreMovie(m.genres, COUNT(m) AS moviesCount, SUM(r.numVotes) AS subTotalNumVotes) " +
             "FROM Movies m INNER JOIN m.rating r " +
             "GROUP BY m.genres")
@@ -36,6 +48,13 @@ public interface MoviesRepository extends JpaRepository<Movies, String> {
 
 
 
+    /**
+     * @return : (Integer) Number of rows updated
+     * @Behaviour : Increment runtimeMinutes by :
+     * 15 if genre = Documentary
+     * 30 if genre = Animation
+     * 45 for the rest
+     */
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE Movies SET runtime_minutes = " +
             "CASE genres " +

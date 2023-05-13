@@ -11,12 +11,8 @@ import java.util.List;
 public interface MoviesService {
 
     /**
-     * @Behaviour : This method add the default data from movies.csv file to the database
-     * @return : List of movies
+     * @return : Top 10 Longest duration list of movies
      */
-    public List<MoviesDTO> addCsvFileMovies();
-
-
     public List<MoviesRatingsDTO> getLongestDurationMovies();
 
     /**
